@@ -66,7 +66,6 @@ const MapScreen: React.FC<IScreenProps> = ({ navigation, route }) => {
 
     setWeather(null);
     setMarker(coords);
-    // setIsLoading(true);
 
     mapRef.current?.animateToRegion(
       {
@@ -90,7 +89,6 @@ const MapScreen: React.FC<IScreenProps> = ({ navigation, route }) => {
   };
 
   const handleMarkerPress = () => {
-    console.log('Marker taped');
     if (isLoading) return;
     if (!weather && marker) {
       fetchCurrentWeather(marker, showCalloutSafe);
@@ -98,7 +96,6 @@ const MapScreen: React.FC<IScreenProps> = ({ navigation, route }) => {
   };
 
   const handleCalloutPress = () => {
-    console.log('Navigating to Search with:', weather?.name);
     if (weather) {
       navigation.navigate('SearchScreen', {
         city: weather.name,

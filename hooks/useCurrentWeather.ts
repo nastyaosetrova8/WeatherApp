@@ -14,8 +14,6 @@ export const useCurrentWeather = () => {
         setWeather(data);
         if (onDone) onDone();
       } catch (error: any) {
-        console.error('Weather error:', error);
-
         console.error(error.response?.data || error.message);
       } finally {
         setIsLoading(false);
