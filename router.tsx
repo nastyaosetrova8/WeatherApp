@@ -21,11 +21,8 @@ function TabNavigator() {
             textTransform: 'uppercase',
           },
           tabBarStyle: {
-            // position: 'absolute',
-            // bottom: 25,
-            // left: 20,
-            // right: 20,
-            // elevation: 0,
+            position: 'absolute',
+            elevation: 0,
             backgroundColor: 'transparent',
             borderColor: 'transparent',
             borderTopWidth: 0,
@@ -36,11 +33,22 @@ function TabNavigator() {
         <Tabs.Screen
           name="MapScreen"
           component={MapScreen}
+          listeners={({ navigation }) => ({
+            tabPress: _e => {
+              navigation.navigate('MapScreen', { reset: Date.now() });
+            },
+          })}
           options={{
             tabBarLabel: 'MAP',
             tabBarIcon: () => {
               null;
             },
+            tabBarItemStyle: {
+              borderRadius: 25,
+              overflow: 'hidden',
+              alignSelf: 'center',
+              backgroundColor: 'transparent',
+            },
             tabBarLabelStyle: {
               position: 'absolute',
               marginStart: 0,
@@ -48,29 +56,29 @@ function TabNavigator() {
               fontSize: 16,
               fontWeight: 'bold',
             },
-            tabBarItemStyle: {
-              borderRadius: 25,
-              overflow: 'hidden',
-              alignSelf: 'center',
-              backgroundColor: 'transparent',
-            },
             tabBarActiveTintColor: '#FFFFFF',
-            tabBarInactiveTintColor: '#212121',
-            tabBarActiveBackgroundColor: '#3478D7',
-            tabBarInactiveBackgroundColor: '#A1C4FD',
+            tabBarInactiveTintColor: '#FFFFFF',
+            tabBarActiveBackgroundColor: '#2b659b',
+            tabBarInactiveBackgroundColor: '#7da9d1',
           }}
         />
         <Tabs.Screen
           name="SearchScreen"
           component={SearchScreen}
-          // listeners={({ navigation }) => ({
-          //   tabPress: e => {
-          //     navigation.navigate('SearchScreen', { reset: Date.now() });
-          //   },
-          // })}
+          listeners={({ navigation }) => ({
+            tabPress: _e => {
+              navigation.navigate('SearchScreen', { reset: Date.now() });
+            },
+          })}
           options={{
             tabBarLabel: 'SEARCH',
             tabBarIcon: () => null,
+            tabBarItemStyle: {
+              borderRadius: 25,
+              overflow: 'hidden',
+              alignSelf: 'center',
+              backgroundColor: 'transparent',
+            },
             tabBarLabelStyle: {
               position: 'absolute',
               marginStart: 0,
@@ -78,16 +86,11 @@ function TabNavigator() {
               fontSize: 16,
               fontWeight: 'bold',
             },
-            tabBarItemStyle: {
-              borderRadius: 25,
-              overflow: 'hidden',
-              alignSelf: 'center',
-              backgroundColor: 'transparent',
-            },
+
             tabBarActiveTintColor: '#FFFFFF',
-            tabBarInactiveTintColor: '#212121',
-            tabBarActiveBackgroundColor: '#3478D7',
-            tabBarInactiveBackgroundColor: '#A1C4FD',
+            tabBarInactiveTintColor: '#FFFFFF',
+            tabBarActiveBackgroundColor: '#2b659b',
+            tabBarInactiveBackgroundColor: '#7da9d1',
           }}
         />
       </Tabs.Navigator>

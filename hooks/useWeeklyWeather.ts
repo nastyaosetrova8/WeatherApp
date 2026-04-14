@@ -14,12 +14,6 @@ export const useWeeklyWeather = () => {
     setIsLoading(true);
     try {
       const data = await getWeeklyWeather(coords);
-      //   if (data?.list) {
-      //     const dailyData = data.list.filter((item: any) =>
-      //       item.dt_txt.includes('12:00:00'),
-      //     );
-      //     setForecast(dailyData);
-      //   }
       if (data && data.list) {
         const dailyData = filterForecast(data.list);
         setForecast(dailyData);

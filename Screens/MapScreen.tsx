@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import MapView, {
   Callout,
   LongPressEvent,
@@ -13,8 +13,6 @@ import { mapStyle } from '../util/mapStyle';
 import LinearGradient from 'react-native-linear-gradient';
 import { getGradientColors } from '../util/gradientColors';
 import CustomMarker from '../components/CustomMarker';
-// import axios from 'axios';
-// import { useIsFocused } from '@react-navigation/native';
 
 const INITIAL_REGION: Region = {
   latitude: 48.3794,
@@ -23,69 +21,45 @@ const INITIAL_REGION: Region = {
   longitudeDelta: 12,
 };
 
-const MapScreen: React.FC<IScreenProps> = ({ navigation }) => {
+const MapScreen: React.FC<IScreenProps> = ({ navigation, route }) => {
   const [marker, setMarker] = useState<Coords | null>(null);
   const { weather, isLoading, fetchCurrentWeather, setWeather } =
     useCurrentWeather();
 
   const mapRef = useRef<MapView | null>(null);
   const markerRef = useRef<any>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isFocused = useIsFocused();
-  // ---------
-  // const fetchWeather = async (coords: Coords) => {
-  //   // setIsLoading(true);
-  //   try {
-  //     const data = await getWeatherByCoords(coords);
-  //     setWeather(data);
-  //     setIsLoading(false);
-  //     // console.log('Weather updated on focus');
-  //     // console.log(data);
-
-  //     setTimeout(() => {
-  //       markerRef.current?.showCallout();
-  //     }, 100);
-  //   } catch (error: any) {
-  //     console.error('Weather error:', error);
-
-  //     console.error(error.response?.data || error.message);
-  //     setIsLoading(false);
-  //   }
-  // };
-  // --------
-  // useEffect(() => {
-  //   if (weather && marker) {
-  //     const timer = setTimeout(() => {
-  //       markerRef.current?.showCallout();
-  //     }, 400);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [marker, weather]);
-
-  // ===========================================
-  // useEffect(() => {
-  // if (isFocused && marker) {
-  //     fetchWeather(marker);
-  // or
-  //  try {
-  //    const data = await getWeatherByCoords(newCoords);
-  //    setWeather(data);
-  //    console.log(data);
-  //  } catch (error: any) {
-  //    // console.error('Weather fetching error:', error);
-
-  //    console.error(error.response?.data || error.message);
-  //  }
-  //   }
-  // }, [isFocused]);
 
   const showCalloutSafe = () => {
-    setTimeout(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
       if (markerRef.current) {
         markerRef.current.showCallout();
       }
+      timeoutRef.current = null;
     }, 200);
   };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (route.params?.reset) {
+      setMarker(null);
+      setWeather(null);
+      mapRef.current?.animateToRegion(INITIAL_REGION, 800);
+    }
+  }, [route.params?.reset, setWeather]);
 
   const handleLongPress = (e: LongPressEvent) => {
     const coords = e.nativeEvent.coordinate;
@@ -108,13 +82,11 @@ const MapScreen: React.FC<IScreenProps> = ({ navigation }) => {
         center: coords,
         pitch: 45,
         heading: 0,
-        altitude: 1000,
+        altitude: 800,
         zoom: 10,
       },
-      { duration: 1000 },
+      { duration: 800 },
     );
-
-    // fetchCurrentWeather(coords, showCalloutSafe);
   };
 
   const handleMarkerPress = () => {
@@ -131,7 +103,6 @@ const MapScreen: React.FC<IScreenProps> = ({ navigation }) => {
       navigation.navigate('SearchScreen', {
         city: weather.name,
         coords: marker,
-        // autoFocus: false,
       });
     }
   };
@@ -144,61 +115,18 @@ const MapScreen: React.FC<IScreenProps> = ({ navigation }) => {
         initialRegion={INITIAL_REGION}
         onLongPress={handleLongPress}
         customMapStyle={mapStyle}
-        // mapType="satellite"
-        // showsUserLocation
-        // provider="google"
-        // loadingBackgroundColor={#FFFFFF}
-        // hybrid
-        // terrain
-        // loadingEnabled={true}
-        // rotateEnabled={true}
-        // zoomEnabled={true}
-        // pitchEnabled={true}
-        // scrollEnabled={true}
       >
-        {/* {marker && <Marker coordinate={marker} />} */}
-
         {marker && (
           <Marker
             ref={markerRef}
             coordinate={marker}
-            // key={`${marker.latitude}-${marker.longitude}`}
-            // key={`marker-${marker.latitude}-${marker.longitude}`}
             key={`marker-${marker.latitude}-${marker.longitude}-${isFocused}`}
             opacity={0.99}
             tracksViewChanges={true}
-            onPress={
-              handleMarkerPress
-              // () => {
-              // console.log('Marker taped');
-              // if (isLoading) return;
-              // if (!weather) {
-              //   fetchCurrentWeather(marker, showCalloutSafe);
-              // }
-              // }
-            }
+            onPress={handleMarkerPress}
           >
             <CustomMarker />
-
-            {/* {weather && weather.main ? ( */}
-            <Callout
-              tooltip={true}
-              onPress={
-                handleCalloutPress
-                // () => {
-                // console.log('Navigating to Search with:', weather?.name);
-                // if (weather) {
-                //   navigation.navigate('SearchScreen', {
-                //     city: weather.name,
-                //     // --------------
-                //     coords: marker,
-                //     // autoFocus: false,
-                //     // -----------------
-                //   });
-                // }
-                // }
-              }
-            >
+            <Callout tooltip={true} onPress={handleCalloutPress}>
               <View style={styles.calloutWrapper}>
                 {weather ? (
                   <>
@@ -208,35 +136,19 @@ const MapScreen: React.FC<IScreenProps> = ({ navigation }) => {
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
                     >
-                      {/* {weather ? ( */}
-
                       <Text style={styles.cityName}>
                         {String(weather.name)}
                         {weather.sys?.country ? `, ${weather.sys.country}` : ''}
-                        {/* {weather.name} */}
-                        {/* {isLoading
-                    ? 'Loading...'
-                    : weather
-                    ? `${weather.name}, ${weather.sys?.country}`
-                    : 'Unknown location'} */}
-                        {/* {isLoading
-                    ? 'Loading...'
-                    : weather?.name || 'Unknown location'} */}
                       </Text>
-                      {/* !isLoading && */}
                       <Text style={styles.weatherText}>
                         {weather.main
-                          ? `${Math.round(weather.main.temp)}°C`
-                          : '--°C'}
+                          ? `${Math.round(weather.main.temp)}\u00B0C`
+                          : '--\u00B0C'}
 
                         {weather.weather?.[0].description
                           ? ` - ${weather.weather[0].description}`
                           : ''}
                       </Text>
-                      {/* )} */}
-                      {/* {weather.weather?.[0] && (
-                      <Text> {weather.weather[0].description}</Text>
-                    )} */}
                       <Text style={styles.linkText}>Show week forecast</Text>
                     </LinearGradient>
                     <View style={styles.calloutArrowWrapper}>
@@ -260,17 +172,10 @@ const MapScreen: React.FC<IScreenProps> = ({ navigation }) => {
                     ]}
                   >
                     <ActivityIndicator size="small" color="#0000ff" />
-                    <Text style={{ color: '#000', marginTop: 2 }}>
-                      Loading...
-                    </Text>
+                    <Text style={styles.loadingTxt}>Loading...</Text>
                   </View>
                 )}
               </View>
-              {/* )} */}
-              {/* {!isLoading && !weather && (
-                  <Text style={styles.weatherText}>Failed to load weather</Text>
-                )} */}
-              {/* </View> */}
             </Callout>
           </Marker>
         )}
@@ -286,16 +191,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mapContainer: { flex: 1 },
-  // weatherCard: { position: 'absolute', bottom: 20, left: 20, right: 20 },
-  // innerCard: { backgroundColor: 'white', padding: 15, borderRadius: 10 },
-  // cityText: { fontWeight: 'bold' },
   calloutWrapper: {
-    // minWidth: 160,
     minHeight: 88,
-    // padding: 8,
-    // backgroundColor: 'white',
-    // borderRadius: 10,
-    width: 200,
+    minWidth: 200,
     alignItems: 'center',
     backgroundColor: 'transparent',
   },
@@ -353,11 +251,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     color: '#fff',
-    // textDecorationLine: 'underline',
     elevation: 6,
 
     textShadowColor: 'rgba(0, 0, 0, 0.8)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
+  loadingTxt: { color: '#000', marginTop: 2 },
 });

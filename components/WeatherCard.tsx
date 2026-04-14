@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Image, StyleSheet, Text, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import { getGradientColors } from '../util/gradientColors';
 
 const WeatherCard = ({ item, index }: any) => {
   const iconCode = item.weather[0].icon;
@@ -22,7 +24,6 @@ const WeatherCard = ({ item, index }: any) => {
   return (
     <Animated.View
       style={[
-        styles.container,
         {
           opacity: anim,
           transform: [
@@ -36,12 +37,21 @@ const WeatherCard = ({ item, index }: any) => {
         },
       ]}
     >
-      <Text style={styles.dayText}>{dayName}</Text>
+      <LinearGradient
+        colors={getGradientColors(Math.round(item.main.temp))}
+        style={styles.container}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <Text style={styles.dayText}>{dayName}</Text>
 
-      <View style={styles.tempContainer}>
-        <Image source={{ uri: iconUrl }} style={styles.weatherIcon} />
-        <Text style={styles.tempText}>{Math.round(item.main.temp)}°C</Text>
-      </View>
+        <View style={styles.tempContainer}>
+          <Image source={{ uri: iconUrl }} style={styles.weatherIcon} />
+          <Text style={styles.tempText}>
+            {`${Math.round(item.main.temp)}\u00B0C`}
+          </Text>
+        </View>
+      </LinearGradient>
     </Animated.View>
   );
 };
@@ -53,7 +63,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#7da9d1',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 20,
@@ -84,16 +93,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 10,
   },
-  // ============
-  // weatherRow: {
-  //   backgroundColor: '#7da9d1',
-  //   flexDirection: 'row',
-  //   justifyContent: 'space-between',
-  //   padding: 20,
-  //   borderRadius: 15,
-  //   marginVertical: 8,
-  //   alignItems: 'center',
-  // },
-  // dayText: { color: 'white', fontSize: 20, fontWeight: '500' },
-  // tempText: { color: 'white', fontSize: 24, fontWeight: 'bold' },
 });

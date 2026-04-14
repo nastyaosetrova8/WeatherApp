@@ -12,14 +12,7 @@ export const useCurrentWeather = () => {
       try {
         const data = await getWeatherByCoords(coords);
         setWeather(data);
-        //   setIsLoading(false);
-
-        // console.log('Weather updated on focus');
-        // console.log(data);
         if (onDone) onDone();
-        //   setTimeout(() => {
-        //     markerRef.current?.showCallout();
-        //   }, 100);
       } catch (error: any) {
         console.error('Weather error:', error);
 
