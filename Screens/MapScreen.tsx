@@ -180,6 +180,9 @@ const MapScreen: React.FC<IScreenProps> = ({ navigation, route }) => {
           </Marker>
         )}
       </MapView>
+      <View style={styles.topLabelContainer} pointerEvents="none">
+        <Text style={styles.topLabelText}>{'location'.toUpperCase()}</Text>
+      </View>
     </View>
   );
 };
@@ -235,7 +238,6 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
-
   weatherText: {
     marginBottom: 5,
     textAlign: 'center',
@@ -252,10 +254,27 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#fff',
     elevation: 6,
-
     textShadowColor: 'rgba(0, 0, 0, 0.8)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
   loadingTxt: { color: '#000', marginTop: 2 },
+  topLabelContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topLabelText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    letterSpacing: 2,
+    elevation: 6,
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
 });
